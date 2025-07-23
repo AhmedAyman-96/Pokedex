@@ -1,4 +1,5 @@
 import React from 'react';
+import ImageSkeleton from './ImageSkeleton';
 
 const PokemonCardSkeleton: React.FC = () => {
     return (
@@ -6,7 +7,7 @@ const PokemonCardSkeleton: React.FC = () => {
             <div className="p-4">
                 {/* Image skeleton */}
                 <div className="flex justify-center mb-4">
-                    <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                    <ImageSkeleton size="md" shape="square" />
                 </div>
 
                 {/* Name skeleton */}

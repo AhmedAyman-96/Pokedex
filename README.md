@@ -1,13 +1,11 @@
 # 🎮 Pokemon Browser
 
-A modern, responsive Pokemon browser built with React, TypeScript, and Vite. Features both pagination and infinite scroll viewing modes with advanced filtering and search capabilities.
+A modern, responsive Pokemon browser built with React, TypeScript, and Vite. Features both pagination and infinite scroll viewing modes.
 
 ## ✨ Features
 
 ### 🎯 Core Features
 - **Dual View Modes**: Toggle between pagination and infinite scroll
-- **Advanced Search**: Search Pokemon by name with real-time filtering
-- **Type Filtering**: Filter Pokemon by type(s) with multi-select support
 - **Responsive Design**: Mobile-first design that works on all devices
 - **Dark Mode Support**: Automatic dark mode detection and styling
 
@@ -23,6 +21,8 @@ A modern, responsive Pokemon browser built with React, TypeScript, and Vite. Fea
 - **Error Handling**: Graceful error boundaries and retry mechanisms
 - **Type Badges**: Color-coded Pokemon type indicators
 - **Clean Design**: Modern, minimalist interface with proper spacing
+- **Background Animation**: Smooth color transitions between view modes
+- **Suspense Integration**: Lazy loading and code splitting with Suspense boundaries
 
 ## 🚀 Live Demo
 
@@ -37,6 +37,196 @@ A modern, responsive Pokemon browser built with React, TypeScript, and Vite. Fea
 - **Routing**: React Router v6
 - **Icons**: Custom SVG components
 - **Deployment**: Vercel
+
+## 🏗️ Modular & Testable Architecture
+
+### **📁 Project Structure**
+```
+pokemon-browser/
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── icons/          # SVG icon components
+│   │   ├── PokemonCard.tsx # Individual Pokemon card
+│   │   ├── TypeBadge.tsx   # Pokemon type badge
+│   │   ├── ViewModeToggle.tsx # View mode selector
+│   │   ├── PaginationControls.tsx # Pagination component
+│   │   ├── ErrorDisplay.tsx # Reusable error component
+│   │   ├── LoadingSpinner.tsx # Reusable loading component
+│   │   └── ...
+│   ├── hooks/              # Custom React hooks
+│   │   ├── usePokemon.ts   # Pokemon data fetching
+│   │   ├── useInfinitePokemon.ts # Infinite scroll logic
+│   │   ├── useTypeColors.ts # Type color management
+│   │   ├── usePokemonListState.ts # Pokemon list state management
+│   │   └── usePokemonDetailState.ts # Pokemon detail state management
+│   ├── lib/                # Utility functions and constants
+│   │   ├── api.ts          # API layer for data fetching
+│   │   ├── utils.ts        # Pure utility functions
+│   │   └── constants.ts    # Application constants
+│   ├── pages/              # Page components
+│   │   ├── PokemonList.tsx # Main Pokemon list page
+│   │   └── PokemonDetail.tsx # Pokemon detail page
+│   ├── types/              # TypeScript type definitions
+│   └── App.tsx             # Main app component
+├── public/                 # Static assets
+├── vercel.json            # Vercel deployment config
+├── vite.config.ts         # Vite build configuration
+└── package.json           # Dependencies and scripts
+```
+
+### **🔧 Architecture Principles**
+
+#### **1. Separation of Concerns**
+- **API Layer** (`src/lib/api.ts`): All data fetching logic
+- **Business Logic** (`src/lib/utils.ts`): Pure functions for data manipulation
+- **State Management** (`src/hooks/`): Custom hooks for component state
+- **UI Components** (`src/components/`): Reusable, focused components
+- **Constants** (`src/lib/constants.ts`): Centralized configuration
+
+#### **2. Component Modularity**
+```typescript
+// Before: Large monolithic component (328 lines)
+// After: Small, focused components
+<PokemonList>
+  <ViewModeToggle />
+  <SearchBar />
+  <TypeFilter />
+  <PokemonGrid />
+  <PaginationControls />
+</PokemonList>
+```
+
+#### **3. Custom Hooks for State Management**
+```typescript
+// usePokemonListState.ts - Manages all Pokemon list logic
+const {
+  filteredPokemonList,
+  currentLoading,
+  handleRetry,
+  handlePokemonClick,
+  handlePageChange,
+  // ... more state and actions
+} = usePokemonListState();
+```
+
+#### **4. Pure Utility Functions**
+```typescript
+// src/lib/utils.ts - Easy to test pure functions
+export function filterPokemon(
+  pokemonList: Pokemon[],
+  searchTerm: string,
+  selectedTypes: string[]
+): Pokemon[] {
+  return pokemonList.filter(pokemon => {
+    const matchesSearch = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = selectedTypes.length === 0 ||
+      pokemon.types.some(type => selectedTypes.includes(type.type.name));
+    return matchesSearch && matchesType;
+  });
+}
+
+// Extract URLs from the list response for detailed fetching
+const pokemonUrls = pokemonList.results.map(pokemon => pokemon.url);
+```
+
+### **🧪 Testability Features**
+
+#### **1. Pure Functions**
+- All utility functions are pure and easily testable
+- No side effects or dependencies on external state
+- Clear input/output contracts
+
+#### **2. Separated Business Logic**
+- Business logic extracted from UI components
+- Custom hooks encapsulate complex state management
+- API layer isolated for easy mocking
+
+#### **3. Component Isolation**
+- Components receive props and callbacks
+- No direct API calls in components
+- Easy to test individual components
+
+#### **4. Type Safety**
+- Full TypeScript coverage
+- Clear interfaces for all components
+- Compile-time error detection
+
+#### **5. Suspense Integration**
+- Lazy loading for code splitting
+- Suspense boundaries for loading states
+- Error boundaries for error handling
+- Granular component-level Suspense
+
+### **📦 Modular Components**
+
+#### **Reusable UI Components**
+- `ErrorDisplay`: Consistent error handling across the app
+- `LoadingSpinner`: Standardized loading states
+- `ViewModeToggle`: Encapsulated view mode logic
+- `PaginationControls`: Reusable pagination component
+- `SuspenseWrapper`: Reusable Suspense boundaries
+- `SuspenseErrorBoundary`: Combined Suspense and error handling
+
+#### **Specialized Components**
+- `PokemonDetailHeader`: Header section for detail page
+- `PokemonDetailImage`: Image display with error handling
+- `PokemonDetailInfo`: Height/weight information display
+
+#### **Custom Hooks**
+- `usePokemonListState`: Manages Pokemon list state and logic
+- `usePokemonDetailState`: Manages Pokemon detail state
+- `useTypeColors`: Provides type color utilities
+- `useSuspensePokemon`: Data fetching hooks for Suspense integration
+
+### **🔧 Configuration Management**
+
+#### **Constants File**
+```typescript
+// src/lib/constants.ts
+export const ITEMS_PER_PAGE = 20;
+export const SCROLL_THRESHOLD = 100;
+export const TYPE_COLORS = { /* ... */ };
+export const ERROR_MESSAGES = { /* ... */ };
+```
+
+### **⚡ API Optimization**
+
+#### **Efficient Data Fetching**
+The app uses an optimized approach for fetching Pokemon data:
+
+```typescript
+// Before: Inefficient - 20 separate API calls using URLs
+const pokemonList = await fetchPokemonList(20, 0);
+const detailedPokemon = await fetchPokemonDetails(pokemonList); // 20 API calls
+
+// After: Efficient - URL-based fetching from list response
+const pokemonUrls = pokemonList.results.map(pokemon => pokemon.url); // Extract URLs from response
+const detailedPokemon = await fetchPokemonDetailsByUrls(pokemonUrls); // 20 parallel API calls
+```
+
+**Benefits:**
+- **Parallel Requests**: All 20 requests happen simultaneously instead of sequentially
+- **Correct URLs**: Uses the actual URLs provided by the API, avoiding non-existent Pokémon
+- **Better Error Handling**: Individual Pokemon failures don't break the entire page
+- **Caching**: React Query can cache individual Pokemon by URL
+
+#### **Benefits**
+- **Single Source of Truth**: All configuration in one place
+- **Easy Maintenance**: Change values without touching components
+- **Type Safety**: Constants are typed and validated
+- **Environment Specific**: Easy to add environment-specific values
+
+### **🚀 Performance Optimizations**
+
+#### **Code Splitting**
+- Components are naturally split by feature
+- Lazy loading ready for future implementation
+- Bundle size optimized through modular structure
+
+#### **Memoization Ready**
+- Components structured for easy React.memo implementation
+- Pure functions ready for useMemo optimization
+- State management optimized for minimal re-renders
 
 ## 📦 Installation
 
@@ -64,31 +254,6 @@ A modern, responsive Pokemon browser built with React, TypeScript, and Vite. Fea
 
 4. **Open your browser**
    Navigate to `http://localhost:3000`
-
-## 🏗️ Project Structure
-
-```
-pokemon-browser/
-├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── icons/          # SVG icon components
-│   │   ├── PokemonCard.tsx # Individual Pokemon card
-│   │   ├── TypeBadge.tsx   # Pokemon type badge
-│   │   └── ...
-│   ├── hooks/              # Custom React hooks
-│   │   ├── usePokemon.ts   # Pokemon data fetching
-│   │   ├── useInfinitePokemon.ts # Infinite scroll logic
-│   │   └── useTypeColors.ts # Type color management
-│   ├── pages/              # Page components
-│   │   ├── PokemonList.tsx # Main Pokemon list page
-│   │   └── PokemonDetail.tsx # Pokemon detail page
-│   ├── types/              # TypeScript type definitions
-│   └── App.tsx             # Main app component
-├── public/                 # Static assets
-├── vercel.json            # Vercel deployment config
-├── vite.config.ts         # Vite build configuration
-└── package.json           # Dependencies and scripts
-```
 
 ## ⚙️ Configuration
 
@@ -144,11 +309,6 @@ export default defineConfig({
 ### View Modes
 - **Page Controls**: Traditional pagination with numbered pages
 - **Infinite Scroll**: Continuous loading as you scroll down
-
-### Search & Filter
-- **Search**: Type Pokemon names to filter results
-- **Type Filter**: Select one or more types to filter Pokemon
-- **Combined Filtering**: Search and type filters work together
 
 ### Navigation
 - **Pokemon Cards**: Click any Pokemon card to view details
@@ -221,9 +381,9 @@ const {
 ## 🎨 Customization
 
 ### Type Colors
-Modify Pokemon type colors in `src/hooks/useTypeColors.ts`:
+Modify Pokemon type colors in `src/lib/constants.ts`:
 ```typescript
-const typeColors: { [key: string]: string } = {
+export const TYPE_COLORS = {
   fire: 'bg-red-500',
   water: 'bg-blue-500',
   grass: 'bg-green-500',
@@ -242,14 +402,56 @@ The app uses Tailwind CSS for styling. Customize the design by modifying:
 ### Optimizations
 - **Lazy Loading**: Components load only when needed
 - **Memoization**: React.memo and useMemo for performance
-- **Debounced Search**: Prevents excessive API calls
 - **Caching**: React Query provides intelligent caching
 - **Bundle Splitting**: Separate chunks for better loading
 
-### Metrics
-- **Bundle Size**: ~196KB main bundle (60KB gzipped)
-- **Load Time**: < 2 seconds on 3G
-- **Lighthouse Score**: 95+ across all metrics
+### Suspense Implementation
+
+#### **Page-Level Suspense**
+```typescript
+// App.tsx - Lazy loading pages
+const PokemonList = lazy(() => import('./pages/PokemonList'));
+const PokemonDetail = lazy(() => import('./pages/PokemonDetail'));
+
+<Suspense fallback={<PageLoadingFallback />}>
+  <Routes>
+    <Route path="/" element={<PokemonList />} />
+    <Route path="/pokemon/:id" element={<PokemonDetail />} />
+  </Routes>
+</Suspense>
+```
+
+#### **Component-Level Suspense**
+```typescript
+// LazyPokemonGrid.tsx - Individual card loading
+const PokemonCard = lazy(() => import('./PokemonCard'));
+
+{pokemonList.map((pokemon) => (
+  <Suspense key={pokemon.id} fallback={<CardSkeleton />}>
+    <PokemonCard pokemon={pokemon} onClick={handleClick} />
+  </Suspense>
+))}
+```
+
+#### **Suspense with Error Boundaries**
+```typescript
+// SuspenseErrorBoundary.tsx - Combined loading and error handling
+<SuspenseErrorBoundary 
+  message="Loading Pokémon..." 
+  size="lg"
+>
+  <PokemonDetail />
+</SuspenseErrorBoundary>
+```
+
+#### **Benefits**
+- **Code Splitting**: Automatic bundle splitting for better performance
+- **Progressive Loading**: Components load as needed
+- **Better UX**: Consistent loading states across the app
+- **Error Recovery**: Graceful error handling with retry functionality
+- **Performance**: Reduced initial bundle size and faster page loads
+
+
 
 ## 🐛 Troubleshooting
 
@@ -265,7 +467,6 @@ Enable debug logging by adding console.logs in development:
 // In VirtualizedPokemonGrid.tsx
 console.log('Scroll position:', { scrollTop, scrollHeight, clientHeight });
 ```
-
 
 ---
 

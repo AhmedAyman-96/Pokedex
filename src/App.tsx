@@ -1,10 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import PokemonList from './pages/PokemonList';
-import PokemonDetail from './pages/PokemonDetail';
+import { Suspense, lazy } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
+import LoadingSpinner from './components/LoadingSpinner';
 import './App.css';
+
+// Lazy load pages for code splitting
+const PokemonList = lazy(() => import('./pages/PokemonList'));
+const PokemonDetail = lazy(() => import('./pages/PokemonDetail'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,6 +21,21 @@ const queryClient = new QueryClient({
   },
 });
 
+/**
+ * Page Loading Fallback Component
+ * 
+ * Displays a loading spinner while pages are being lazy loaded.
+ * Provides a consistent loading experience across the application.
+ */
+const PageLoadingFallback = () => (
+  <div className="fixed inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+    <LoadingSpinner
+      message="Loading page..."
+      size="lg"
+    />
+  </div>
+);
+
 function App() {
   return (
     <ErrorBoundary>
@@ -24,10 +43,12 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <Routes>
-                <Route path="/" element={<PokemonList />} />
-                <Route path="/pokemon/:id" element={<PokemonDetail />} />
-              </Routes>
+              <Suspense fallback={<PageLoadingFallback />}>
+                <Routes>
+                  <Route path="/" element={<PokemonList />} />
+                  <Route path="/pokemon/:id" element={<PokemonDetail />} />
+                </Routes>
+              </Suspense>
             </main>
           </div>
         </Router>

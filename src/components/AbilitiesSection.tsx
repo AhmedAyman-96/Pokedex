@@ -13,41 +13,37 @@ interface AbilitiesSectionProps {
     abilities: Ability[];
 }
 
+/**
+ * AbilitiesSection Component
+ * 
+ * A component that displays Pokémon abilities with simple styling.
+ * Shows ability names with proper formatting and hidden ability indicators.
+ * 
+ * Features:
+ * - Ability name formatting and display
+ * - Hidden ability indicators
+ * - Responsive design with dark mode support
+ * - Simple, clean layout
+ * 
+ * @param {AbilitiesSectionProps} props - Component props containing Pokémon abilities array
+ * @returns {JSX.Element} Rendered abilities section component
+ */
 const AbilitiesSection: React.FC<AbilitiesSectionProps> = ({ abilities }) => {
-    const formatAbilityName = (name: string) => {
-        return name.split('-').map(word =>
-            word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' ');
-    };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Abilities
-            </h3>
-
-            <div className="space-y-2">
-                {abilities.map((ability) => (
-                    <div
-                        key={ability.slot}
-                        className={`flex items-center justify-between p-3 rounded-lg transition-colors ${ability.is_hidden
-                                ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700'
-                                : 'bg-gray-50 dark:bg-gray-700'
-                            }`}
-                    >
-                        <div className="flex items-center space-x-2">
-                            <span className="font-medium text-gray-900 dark:text-white capitalize">
-                                {formatAbilityName(ability.ability.name)}
-                            </span>
-                            {ability.is_hidden && (
-                                <span className="text-xs bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-full">
-                                    Hidden
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
+        <div className="space-y-3">
+            {abilities.map((ability) => (
+                <div key={ability.slot} className="flex items-center space-x-3">
+                    <span className="px-4 py-2 text-base font-medium bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full capitalize">
+                        {ability.ability.name.replace('-', ' ')}
+                    </span>
+                    {ability.is_hidden && (
+                        <span className="text-base text-gray-500 dark:text-gray-400 italic">
+                            (Hidden)
+                        </span>
+                    )}
+                </div>
+            ))}
         </div>
     );
 };

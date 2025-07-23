@@ -1,37 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Pokemon, PokemonListResponse } from '../types/pokemon';
+import { fetchPokemonList, fetchPokemonDetail, fetchPokemonDetailsByUrls } from '../lib/api';
 
-const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2';
-
-const fetchPokemonList = async (limit: number, offset: number): Promise<PokemonListResponse> => {
-  const response = await fetch(`${POKEAPI_BASE_URL}/pokemon?limit=${limit}&offset=${offset}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch Pokémon list');
-  }
-  return response.json();
-};
-
-const fetchPokemonDetail = async (id: string): Promise<Pokemon> => {
-  const response = await fetch(`${POKEAPI_BASE_URL}/pokemon/${id}`);
-  if (!response.ok) {
-    throw new Error('Pokémon not found');
-  }
-  return response.json();
-};
-
-const fetchPokemonDetails = async (pokemonList: PokemonListResponse): Promise<Pokemon[]> => {
-  const detailedPokemon = await Promise.all(
-    pokemonList.results.map(async (pokemon) => {
-      const pokemonResponse = await fetch(pokemon.url);
-      if (!pokemonResponse.ok) {
-        throw new Error(`Failed to fetch ${pokemon.name}`);
-      }
-      return pokemonResponse.json();
-    })
-  );
-  return detailedPokemon;
-};
-
+/**
+ * Custom hook for fetching paginated Pokémon list data
+ * 
+ * This hook fetches Pokémon data in two steps:
+ * 1. Fetches the pagination metadata (count, next, previous)
+ * 2. Fetches detailed Pokémon data for the IDs in the current page
+ * 
+ * @param {number} limit - Number of Pokémon to fetch per page (default: 20)
+ * @param {number} offset - Number of Pokémon to skip (default: 0)
+ * @returns {Object} An object containing:
+ *   - pokemonList: Array of detailed Pokémon objects
+ *   - loading: Boolean indicating if data is loading
+ *   - error: Error message if any, null otherwise
+ *   - hasMore: Boolean indicating if more pages are available
+ *   - totalCount: Total number of Pokémon available
+ *   - refetch: Function to refetch all data
+ */
 export const usePokemonList = (limit: number = 20, offset: number = 0) => {
   const {
     data: pokemonListData,
@@ -43,20 +29,26 @@ export const usePokemonList = (limit: number = 20, offset: number = 0) => {
     queryFn: () => fetchPokemonList(limit, offset),
   });
 
+  // Extract Pokemon URLs from the list response
+  const pokemonUrls = pokemonListData?.results.map(pokemon => pokemon.url) || [];
+
   const {
     data: pokemonList,
     isLoading: detailsLoading,
     error: detailsError,
     refetch: refetchDetails,
   } = useQuery({
-    queryKey: ['pokemon-details', pokemonListData?.results],
-    queryFn: () => pokemonListData ? fetchPokemonDetails(pokemonListData) : Promise.resolve([]),
-    enabled: !!pokemonListData,
+    queryKey: ['pokemon-details', pokemonUrls],
+    queryFn: () => pokemonUrls.length > 0 ? fetchPokemonDetailsByUrls(pokemonUrls) : Promise.resolve([]),
+    enabled: pokemonUrls.length > 0,
   });
 
+  /**
+   * Refetches both the pagination metadata and detailed Pokémon data
+   */
   const refetch = () => {
     refetchList();
-    if (pokemonListData) {
+    if (pokemonUrls.length > 0) {
       refetchDetails();
     }
   };
@@ -71,6 +63,16 @@ export const usePokemonList = (limit: number = 20, offset: number = 0) => {
   };
 };
 
+/**
+ * Custom hook for fetching detailed data for a specific Pokémon
+ * 
+ * @param {string} id - The Pokémon ID to fetch details for
+ * @returns {Object} An object containing:
+ *   - pokemon: Detailed Pokémon object or null if not found
+ *   - loading: Boolean indicating if data is loading
+ *   - error: Error message if any, null otherwise
+ *   - refetch: Function to refetch the Pokémon data
+ */
 export const usePokemonDetail = (id: string) => {
   const {
     data: pokemon,

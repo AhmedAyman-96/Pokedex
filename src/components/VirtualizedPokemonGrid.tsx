@@ -15,7 +15,15 @@ interface VirtualizedPokemonGridProps {
  * VirtualizedPokemonGrid Component
  * 
  * A virtualized grid component that implements infinite scroll for Pokémon cards.
- * Handles automatic loading of more Pokémon when the user scrolls near the bottom.
+ * Uses Intersection Observer to detect when user is near the bottom of the content,
+ * providing smooth infinite scroll experience even on large screens where content
+ * might not be scrollable.
+ * 
+ * Features:
+ * - Intersection Observer for efficient scroll detection
+ * - Automatic loading of more Pokémon when near bottom
+ * - Loading states and end-of-list indicators
+ * - Responsive grid layout
  */
 const VirtualizedPokemonGrid: React.FC<VirtualizedPokemonGridProps> = ({
     pokemonList,
@@ -26,37 +34,39 @@ const VirtualizedPokemonGrid: React.FC<VirtualizedPokemonGridProps> = ({
     scrollContainerRef,
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const sentinelRef = useRef<HTMLDivElement>(null);
 
     /**
-     * Handles infinite scroll by detecting when user scrolls near the bottom
-     * and triggering loadNextPage when within 100px of the bottom
+     * Handles intersection observer callback for infinite scroll
+     * Triggers loadNextPage when the sentinel element becomes visible
+     * and there are more pages to load
      */
-    const handleScroll = useCallback(() => {
-        if (!hasNextPage || isNextPageLoading) return;
-
-        const scrollContainer = scrollContainerRef.current;
-        if (!scrollContainer) return;
-
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-
-        if (scrollTop >= scrollHeight - clientHeight - 100) {
+    const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasNextPage && !isNextPageLoading) {
             loadNextPage();
         }
-    }, [hasNextPage, isNextPageLoading, loadNextPage, scrollContainerRef]);
+    }, [hasNextPage, isNextPageLoading, loadNextPage]);
 
     /**
-     * Sets up scroll event listeners on the container
+     * Sets up Intersection Observer for infinite scroll detection
      */
     useEffect(() => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
+        const sentinel = sentinelRef.current;
+        if (!sentinel) return;
 
-        container.addEventListener('scroll', handleScroll, { passive: true });
+        const observer = new IntersectionObserver(handleIntersection, {
+            root: scrollContainerRef.current,
+            rootMargin: '100px', // Start loading when within 100px of the sentinel
+            threshold: 0.1
+        });
+
+        observer.observe(sentinel);
 
         return () => {
-            container.removeEventListener('scroll', handleScroll);
+            observer.disconnect();
         };
-    }, [handleScroll, scrollContainerRef]);
+    }, [handleIntersection, scrollContainerRef]);
 
     if (pokemonList.length === 0 && !isNextPageLoading) {
         return (
@@ -77,6 +87,13 @@ const VirtualizedPokemonGrid: React.FC<VirtualizedPokemonGridProps> = ({
                     />
                 ))}
             </div>
+
+            {/* Intersection Observer sentinel element */}
+            <div
+                ref={sentinelRef}
+                className="h-4 w-full"
+                style={{ minHeight: '1px' }}
+            />
 
             {isNextPageLoading && (
                 <div className="text-center py-8">

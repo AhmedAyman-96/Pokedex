@@ -1,31 +1,23 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import type { Pokemon, PokemonListResponse } from '../types/pokemon';
+import { fetchPokemonList, fetchPokemonDetailsByUrls } from '../lib/api';
+import { ITEMS_PER_PAGE } from '../lib/constants';
 
-const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2';
-const ITEMS_PER_PAGE = 20;
-
-const fetchPokemonList = async (limit: number, offset: number): Promise<PokemonListResponse> => {
-  const response = await fetch(`${POKEAPI_BASE_URL}/pokemon?limit=${limit}&offset=${offset}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch Pokémon list');
-  }
-  return response.json();
-};
-
-// Fetch detailed data for multiple Pokémon
-const fetchPokemonDetails = async (pokemonList: PokemonListResponse): Promise<Pokemon[]> => {
-  const detailedPokemon = await Promise.all(
-    pokemonList.results.map(async (pokemon) => {
-      const pokemonResponse = await fetch(pokemon.url);
-      if (!pokemonResponse.ok) {
-        throw new Error(`Failed to fetch ${pokemon.name}`);
-      }
-      return pokemonResponse.json();
-    })
-  );
-  return detailedPokemon;
-};
-
+/**
+ * Custom hook for infinite scroll Pokémon data fetching
+ * 
+ * This hook uses React Query's useInfiniteQuery to implement infinite scroll
+ * functionality. It fetches Pokémon data in pages and provides methods to
+ * load more data and reset the query.
+ * 
+ * @returns {Object} An object containing:
+ *   - pokemonList: Array of all fetched Pokémon
+ *   - loading: Boolean indicating if initial data is loading
+ *   - isNextPageLoading: Boolean indicating if next page is loading
+ *   - error: Error message if any, null otherwise
+ *   - hasMore: Boolean indicating if more data is available
+ *   - loadMore: Function to load the next page
+ *   - reset: Function to reset the query and refetch data
+ */
 export const useInfinitePokemon = () => {
   const {
     data,
@@ -40,7 +32,11 @@ export const useInfinitePokemon = () => {
     queryFn: async ({ pageParam = 0 }) => {
       const offset = pageParam * ITEMS_PER_PAGE;
       const pokemonList = await fetchPokemonList(ITEMS_PER_PAGE, offset);
-      const detailedPokemon = await fetchPokemonDetails(pokemonList);
+      
+      // Extract Pokemon URLs from the list response
+      const pokemonUrls = pokemonList.results.map(pokemon => pokemon.url);
+      const detailedPokemon = await fetchPokemonDetailsByUrls(pokemonUrls);
+      
       return {
         pokemon: detailedPokemon,
         nextPage: pokemonList.next ? pageParam + 1 : undefined,
@@ -53,12 +49,21 @@ export const useInfinitePokemon = () => {
 
   const pokemonList = data?.pages.flatMap(page => page.pokemon) || [];
 
+  /**
+   * Loads the next page of Pokémon data
+   * 
+   * Only triggers if there are more pages available and
+   * no page is currently being fetched
+   */
   const loadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   };
 
+  /**
+   * Resets the infinite query and refetches data from the beginning
+   */
   const reset = () => {
     refetch();
   };
@@ -66,6 +71,7 @@ export const useInfinitePokemon = () => {
   return {
     pokemonList,
     loading: isLoading,
+    isNextPageLoading: isFetchingNextPage,
     error: error?.message || null,
     hasMore: hasNextPage || false,
     loadMore,
