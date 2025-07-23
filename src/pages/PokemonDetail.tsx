@@ -1,8 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePokemonDetail } from '../hooks/usePokemon';
-import { useTypeColors } from '../hooks/useTypeColors';
-import StatsSection from '../components/StatsSection';
-import AbilitiesSection from '../components/AbilitiesSection';
 import TypeBadge from '../components/TypeBadge';
 import { LightningBoltIcon, ArrowLeftIcon, HeightIcon, WeightIcon } from '../components/icons';
 

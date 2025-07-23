@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PokemonCard from '../components/PokemonCard';
 import VirtualizedPokemonGrid from '../components/VirtualizedPokemonGrid';
