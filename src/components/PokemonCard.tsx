@@ -1,32 +1,11 @@
 import type { PokemonCardProps } from '../types/pokemon';
+import { useTypeColors } from '../hooks/useTypeColors';
 
 const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onClick }) => {
     const imageUrl = pokemon.sprites.other['official-artwork'].front_default ||
         pokemon.sprites.front_default;
 
-    const getTypeColor = (typeName: string) => {
-        const typeColors: { [key: string]: string } = {
-            normal: 'bg-gray-400 text-white',
-            fire: 'bg-red-500 text-white',
-            water: 'bg-blue-500 text-white',
-            electric: 'bg-yellow-400 text-gray-900',
-            grass: 'bg-green-500 text-white',
-            ice: 'bg-blue-200 text-gray-900',
-            fighting: 'bg-red-700 text-white',
-            poison: 'bg-purple-500 text-white',
-            ground: 'bg-yellow-600 text-white',
-            flying: 'bg-indigo-400 text-white',
-            psychic: 'bg-pink-500 text-white',
-            bug: 'bg-green-400 text-gray-900',
-            rock: 'bg-yellow-700 text-white',
-            ghost: 'bg-purple-700 text-white',
-            dragon: 'bg-indigo-700 text-white',
-            dark: 'bg-gray-700 text-white',
-            steel: 'bg-gray-500 text-white',
-            fairy: 'bg-pink-300 text-gray-900',
-        };
-        return typeColors[typeName] || 'bg-gray-500 text-white';
-    };
+    const { getTypeColor } = useTypeColors();
 
     return (
         <div
@@ -48,11 +27,14 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onClick }) => {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center capitalize">
                     {pokemon.name}
                 </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">
+                    #{pokemon.id.toString().padStart(3, '0')}
+                </p>
                 <div className="flex justify-center gap-2 mt-2">
                     {pokemon.types.map((type) => (
                         <span
                             key={type.slot}
-                            className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getTypeColor(type.type.name)}`}
+                            className={`px-2 py-1 text-xs font-medium rounded-full capitalize text-white ${getTypeColor(type.type.name)}`}
                         >
                             {type.type.name}
                         </span>

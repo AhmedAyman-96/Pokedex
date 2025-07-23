@@ -8,6 +8,7 @@ import PokemonCardSkeleton from '../components/PokemonCardSkeleton';
 import { usePokemonList } from '../hooks/usePokemon';
 import { useInfinitePokemon } from '../hooks/useInfinitePokemon';
 import type { Pokemon } from '../types/pokemon';
+import { LightningBoltIcon, FilterIcon } from '../components/icons';
 
 const PokemonList: React.FC = () => {
     const [viewType, setViewType] = useState<'pagination' | 'loadMore'>('pagination');
@@ -20,11 +21,17 @@ const PokemonList: React.FC = () => {
     const limit = 20;
     const offset = currentPage * limit;
 
-    // Use different hooks based on view type
-    const { pokemonList: paginationList, loading: paginationLoading, error: paginationError, hasMore: paginationHasMore } = usePokemonList(limit, offset);
+    const { pokemonList: paginationList, loading: paginationLoading, error: paginationError, hasMore: paginationHasMore, refetch: refetchPagination, totalCount: paginationTotal } = usePokemonList(limit, offset);
     const { pokemonList: infiniteList, loading: infiniteLoading, error: infiniteError, hasMore: infiniteHasMore, loadMore, reset } = useInfinitePokemon();
 
-    // Filter Pokémon based on search term and selected types
+    const handleRetry = () => {
+        if (viewType === 'pagination') {
+            refetchPagination();
+        } else {
+            reset();
+        }
+    };
+
     const filterPokemon = (pokemonList: Pokemon[]) => {
         return pokemonList.filter(pokemon => {
             const matchesSearch = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -50,177 +57,248 @@ const PokemonList: React.FC = () => {
         }
     };
 
-    // Use appropriate data based on view type
     const currentPokemonList = viewType === 'loadMore' ? infiniteList : paginationList;
     const currentLoading = viewType === 'loadMore' ? infiniteLoading : paginationLoading;
     const currentError = viewType === 'loadMore' ? infiniteError : paginationError;
     const currentHasMore = viewType === 'loadMore' ? infiniteHasMore : paginationHasMore;
 
-    // Filter the current list
     const filteredPokemonList = filterPokemon(currentPokemonList);
+
+    const totalPages = Math.ceil(paginationTotal / limit);
+
+    const getPaginationNumbers = () => {
+        const numbers = [];
+        const current = currentPage + 1;
+
+        if (totalPages <= 7) {
+            // Show all pages if 7 or fewer
+            for (let i = 1; i <= totalPages; i++) {
+                numbers.push(i);
+            }
+        } else {
+            // Always show first page
+            numbers.push(1);
+
+            if (current <= 4) {
+                // Show pages 2, 3, 4, 5, ..., last
+                for (let i = 2; i <= 5; i++) {
+                    numbers.push(i);
+                }
+                numbers.push('...');
+                numbers.push(totalPages);
+            } else if (current >= totalPages - 3) {
+                // Show first, ..., last-4, last-3, last-2, last-1, last
+                numbers.push('...');
+                for (let i = totalPages - 4; i <= totalPages; i++) {
+                    numbers.push(i);
+                }
+            } else {
+                // Show first, ..., current-1, current, current+1, ..., last
+                numbers.push('...');
+                numbers.push(current - 1);
+                numbers.push(current);
+                numbers.push(current + 1);
+                numbers.push('...');
+                numbers.push(totalPages);
+            }
+        }
+
+        return numbers;
+    };
 
     if (currentError) {
         return (
-            <div className="text-center py-12">
-                <div className="text-red-600 text-lg mb-4">{currentError}</div>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                    Retry
-                </button>
+            <div className="fixed inset-0 bg-sky-100 flex items-center justify-center">
+                <div className="text-center max-w-md mx-auto p-8">
+                    <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                        {currentError}
+                    </h2>
+                    <button
+                        onClick={handleRetry}
+                        className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    >
+                        Retry
+                    </button>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            {/* View Toggle */}
-            <div className="flex justify-center space-x-4">
-                <button
-                    onClick={() => handleViewTypeChange('pagination')}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${viewType === 'pagination'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
-                >
-                    Pagination View
-                </button>
-                <button
-                    onClick={() => handleViewTypeChange('loadMore')}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${viewType === 'loadMore'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
-                >
-                    Infinite Scroll View
-                </button>
+        <div className="fixed inset-0 bg-sky-100 overflow-y-auto">
+            <div className="py-8 sm:py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center">
+                        <div className="flex items-center justify-center space-x-3 mb-4">
+                            <LightningBoltIcon className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500" />
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
+                                Pokédex
+                            </h1>
+                        </div>
+                        <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+                            Discover and explore Pokemon with page controls
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            {/* Search Bar */}
-            <SearchBar
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-            />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
+                <div className="space-y-6">
+                    <div className="flex justify-center space-x-4">
+                        <button
+                            onClick={() => handleViewTypeChange('pagination')}
+                            className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ease-in-out transform ${viewType === 'pagination'
+                                ? 'bg-gray-900 text-white scale-105 shadow-lg shadow-gray-900/25'
+                                : 'bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 hover:scale-102 hover:shadow-md'
+                                }`}
+                        >
+                            Page Controls
+                        </button>
+                        <button
+                            onClick={() => handleViewTypeChange('loadMore')}
+                            className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ease-in-out transform ${viewType === 'loadMore'
+                                ? 'bg-gray-900 text-white scale-105 shadow-lg shadow-gray-900/25'
+                                : 'bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 hover:scale-102 hover:shadow-md'
+                                }`}
+                        >
+                            Infinite Scroll
+                        </button>
+                    </div>
 
-            {/* Filter Toggle */}
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-                    </svg>
-                    <span>Filters</span>
-                </button>
-            </div>
-
-            {/* Filters Panel */}
-            {showFilters && (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <TypeFilter
-                        selectedTypes={selectedTypes}
-                        onTypeChange={setSelectedTypes}
+                    <SearchBar
+                        searchTerm={searchTerm}
+                        onSearchChange={setSearchTerm}
                     />
-                </div>
-            )}
 
-            {/* Results Summary */}
-            {(searchTerm || selectedTypes.length > 0) && (
-                <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-                    Showing {filteredPokemonList.length} of {currentPokemonList.length} Pokémon
-                    {searchTerm && ` matching "${searchTerm}"`}
-                    {selectedTypes.length > 0 && ` of type${selectedTypes.length > 1 ? 's' : ''}: ${selectedTypes.join(', ')}`}
-                </div>
-            )}
+                    <div className="flex justify-center">
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="flex items-center space-x-2 px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200"
+                        >
+                            <FilterIcon className="w-5 h-5" />
+                            <span className="font-medium">Filters</span>
+                        </button>
+                    </div>
 
-            {/* Loading State */}
-            {currentLoading && currentPokemonList.length === 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {Array.from({ length: 10 }).map((_, index) => (
-                        <PokemonCardSkeleton key={index} />
-                    ))}
-                </div>
-            )}
+                    {showFilters && (
+                        <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+                            <TypeFilter
+                                selectedTypes={selectedTypes}
+                                onTypeChange={setSelectedTypes}
+                            />
+                        </div>
+                    )}
 
-            {/* Pokémon Grid */}
-            {filteredPokemonList.length > 0 && (
-                <>
-                    {viewType === 'loadMore' ? (
-                        // Virtualized infinite scroll grid
-                        <VirtualizedPokemonGrid
-                            pokemonList={filteredPokemonList}
-                            hasNextPage={currentHasMore}
-                            isNextPageLoading={currentLoading}
-                            loadNextPage={loadMore}
-                            onPokemonClick={handlePokemonClick}
-                        />
-                    ) : (
-                        // Regular pagination grid
+                    {(searchTerm || selectedTypes.length > 0) && (
+                        <div className="text-center text-sm text-gray-600 bg-white rounded-lg px-4 py-3 shadow-sm border border-gray-200">
+                            Showing <span className="font-semibold text-gray-900">{filteredPokemonList.length}</span> of <span className="font-semibold">{currentPokemonList.length}</span> Pokémon
+                            {searchTerm && ` matching "${searchTerm}"`}
+                            {selectedTypes.length > 0 && ` of type${selectedTypes.length > 1 ? 's' : ''}: ${selectedTypes.join(', ')}`}
+                        </div>
+                    )}
+
+                    {currentLoading && currentPokemonList.length === 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                            {filteredPokemonList.map((pokemon) => (
-                                <PokemonCard
-                                    key={pokemon.id}
-                                    pokemon={pokemon}
-                                    onClick={() => handlePokemonClick(pokemon)}
-                                />
+                            {Array.from({ length: 10 }).map((_, index) => (
+                                <PokemonCardSkeleton key={index} />
                             ))}
                         </div>
                     )}
-                </>
-            )}
 
-            {/* No Results */}
-            {!currentLoading && filteredPokemonList.length === 0 && currentPokemonList.length > 0 && (
-                <div className="text-center py-12">
-                    <div className="text-gray-500 dark:text-gray-400 text-lg mb-4">
-                        No Pokémon found matching your criteria
-                    </div>
-                    <button
-                        onClick={() => {
-                            setSearchTerm('');
-                            setSelectedTypes([]);
-                        }}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                    >
-                        Clear Filters
-                    </button>
+                    {filteredPokemonList.length > 0 && (
+                        <>
+                            {viewType === 'loadMore' ? (
+                                <VirtualizedPokemonGrid
+                                    pokemonList={filteredPokemonList}
+                                    hasNextPage={currentHasMore}
+                                    isNextPageLoading={currentLoading}
+                                    loadNextPage={loadMore}
+                                    onPokemonClick={handlePokemonClick}
+                                />
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                                    {filteredPokemonList.map((pokemon) => (
+                                        <PokemonCard
+                                            key={pokemon.id}
+                                            pokemon={pokemon}
+                                            onClick={() => handlePokemonClick(pokemon)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {!currentLoading && filteredPokemonList.length === 0 && currentPokemonList.length > 0 && (
+                        <div className="text-center py-12">
+                            <div className="text-gray-500 text-lg mb-4">
+                                No Pokémon found matching your criteria
+                            </div>
+                            <button
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setSelectedTypes([]);
+                                }}
+                                className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                            >
+                                Clear Filters
+                            </button>
+                        </div>
+                    )}
+
+                    {viewType === 'pagination' && !currentLoading && (
+                        <div className="flex flex-col items-center space-y-4 mt-8">
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 0}
+                                    className="text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                                >
+                                    &lt; Previous
+                                </button>
+
+                                <div className="flex items-center space-x-1">
+                                    {getPaginationNumbers().map((number, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => typeof number === 'number' ? handlePageChange(number - 1) : null}
+                                            disabled={typeof number !== 'number'}
+                                            className={`px-3 py-2 rounded-lg font-medium transition-colors ${number === currentPage + 1
+                                                ? 'bg-gray-900 text-white'
+                                                : typeof number === 'number'
+                                                    ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                                    : 'text-gray-400 cursor-default'
+                                                }`}
+                                        >
+                                            {number}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={!currentHasMore}
+                                    className="text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                                >
+                                    Next &gt;
+                                </button>
+                            </div>
+
+                            <div className="text-sm text-gray-600">
+                                Page {currentPage + 1} of {totalPages} ({limit} Pokemon shown of {paginationTotal})
+                            </div>
+                        </div>
+                    )}
+
+                    {viewType === 'loadMore' && currentLoading && currentPokemonList.length > 0 && (
+                        <div className="text-center mt-8">
+                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-900 border-t-transparent"></div>
+                            <p className="mt-3 text-gray-600 font-medium">Loading more Pokémon...</p>
+                        </div>
+                    )}
                 </div>
-            )}
-
-            {/* Pagination Controls - Only for pagination view */}
-            {viewType === 'pagination' && !currentLoading && (
-                <div className="flex justify-center items-center space-x-2 mt-8">
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 0}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
-                    >
-                        Previous
-                    </button>
-
-                    <span className="px-4 py-2 text-gray-700">
-                        Page {currentPage + 1}
-                    </span>
-
-                    <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={!currentHasMore}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
-                    >
-                        Next
-                    </button>
-                </div>
-            )}
-
-            {/* Loading More State - Only for infinite scroll */}
-            {viewType === 'loadMore' && currentLoading && currentPokemonList.length > 0 && (
-                <div className="text-center mt-8">
-                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                    <p className="mt-2 text-gray-600">Loading more Pokémon...</p>
-                </div>
-            )}
+            </div>
         </div>
     );
 };

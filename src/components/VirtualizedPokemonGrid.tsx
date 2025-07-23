@@ -70,8 +70,8 @@ const VirtualizedPokemonGrid: React.FC<VirtualizedPokemonGridProps> = ({
             {/* Loading indicator */}
             {isNextPageLoading && (
                 <div className="text-center py-8">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    <p className="mt-2 text-gray-600 dark:text-gray-300">Loading more Pokémon...</p>
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-900 border-t-transparent"></div>
+                    <p className="mt-3 text-gray-600 font-medium">Loading more Pokémon...</p>
                 </div>
             )}
 
