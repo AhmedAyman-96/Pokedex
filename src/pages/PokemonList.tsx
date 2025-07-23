@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PokemonCard from '../components/PokemonCard';
 import VirtualizedPokemonGrid from '../components/VirtualizedPokemonGrid';
@@ -10,6 +11,13 @@ import { useInfinitePokemon } from '../hooks/useInfinitePokemon';
 import type { Pokemon } from '../types/pokemon';
 import { LightningBoltIcon, FilterIcon } from '../components/icons';
 
+/**
+ * PokemonList Component
+ * 
+ * Main page component that displays a list of Pokémon with both pagination
+ * and infinite scroll viewing options.
+ */
+
 const PokemonList: React.FC = () => {
     const [viewType, setViewType] = useState<'pagination' | 'loadMore'>('pagination');
     const [currentPage, setCurrentPage] = useState(0);
@@ -17,6 +25,7 @@ const PokemonList: React.FC = () => {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [showFilters, setShowFilters] = useState(false);
     const navigate = useNavigate();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const limit = 20;
     const offset = currentPage * limit;
@@ -24,6 +33,9 @@ const PokemonList: React.FC = () => {
     const { pokemonList: paginationList, loading: paginationLoading, error: paginationError, hasMore: paginationHasMore, refetch: refetchPagination, totalCount: paginationTotal } = usePokemonList(limit, offset);
     const { pokemonList: infiniteList, loading: infiniteLoading, error: infiniteError, hasMore: infiniteHasMore, loadMore, reset } = useInfinitePokemon();
 
+    /**
+     * Retry handler for both pagination and infinite scroll modes
+     */
     const handleRetry = () => {
         if (viewType === 'pagination') {
             refetchPagination();
@@ -32,6 +44,9 @@ const PokemonList: React.FC = () => {
         }
     };
 
+    /**
+     * Filter Pokémon based on search term and selected types
+     */
     const filterPokemon = (pokemonList: Pokemon[]) => {
         return pokemonList.filter(pokemon => {
             const matchesSearch = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -41,14 +56,23 @@ const PokemonList: React.FC = () => {
         });
     };
 
+    /**
+     * Navigate to Pokémon detail page
+     */
     const handlePokemonClick = (pokemon: Pokemon) => {
         navigate(`/pokemon/${pokemon.id}`);
     };
 
+    /**
+     * Handle pagination page changes
+     */
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
 
+    /**
+     * Handle view type changes (pagination vs infinite scroll)
+     */
     const handleViewTypeChange = (newViewType: 'pagination' | 'loadMore') => {
         setViewType(newViewType);
         setCurrentPage(0);
@@ -63,37 +87,34 @@ const PokemonList: React.FC = () => {
     const currentHasMore = viewType === 'loadMore' ? infiniteHasMore : paginationHasMore;
 
     const filteredPokemonList = filterPokemon(currentPokemonList);
-
     const totalPages = Math.ceil(paginationTotal / limit);
 
+    /**
+     * Generate pagination numbers with ellipsis for large page counts
+     */
     const getPaginationNumbers = () => {
         const numbers = [];
         const current = currentPage + 1;
 
         if (totalPages <= 7) {
-            // Show all pages if 7 or fewer
             for (let i = 1; i <= totalPages; i++) {
                 numbers.push(i);
             }
         } else {
-            // Always show first page
             numbers.push(1);
 
             if (current <= 4) {
-                // Show pages 2, 3, 4, 5, ..., last
                 for (let i = 2; i <= 5; i++) {
                     numbers.push(i);
                 }
                 numbers.push('...');
                 numbers.push(totalPages);
             } else if (current >= totalPages - 3) {
-                // Show first, ..., last-4, last-3, last-2, last-1, last
                 numbers.push('...');
                 for (let i = totalPages - 4; i <= totalPages; i++) {
                     numbers.push(i);
                 }
             } else {
-                // Show first, ..., current-1, current, current+1, ..., last
                 numbers.push('...');
                 numbers.push(current - 1);
                 numbers.push(current);
@@ -126,7 +147,7 @@ const PokemonList: React.FC = () => {
     }
 
     return (
-        <div className="fixed inset-0 bg-sky-100 overflow-y-auto">
+        <div ref={scrollContainerRef} className="fixed inset-0 bg-sky-100 overflow-y-auto">
             <div className="py-8 sm:py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
@@ -215,6 +236,7 @@ const PokemonList: React.FC = () => {
                                     isNextPageLoading={currentLoading}
                                     loadNextPage={loadMore}
                                     onPokemonClick={handlePokemonClick}
+                                    scrollContainerRef={scrollContainerRef}
                                 />
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -249,25 +271,25 @@ const PokemonList: React.FC = () => {
 
                     {viewType === 'pagination' && !currentLoading && (
                         <div className="flex flex-col items-center space-y-4 mt-8">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
                                 <button
                                     onClick={() => handlePageChange(currentPage - 1)}
                                     disabled={currentPage === 0}
-                                    className="text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                                    className="text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed font-medium px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:hover:bg-transparent transition-colors"
                                 >
                                     &lt; Previous
                                 </button>
 
-                                <div className="flex items-center space-x-1">
+                                <div className="flex flex-wrap justify-center items-center gap-1 max-w-full">
                                     {getPaginationNumbers().map((number, index) => (
                                         <button
                                             key={index}
                                             onClick={() => typeof number === 'number' ? handlePageChange(number - 1) : null}
                                             disabled={typeof number !== 'number'}
-                                            className={`px-3 py-2 rounded-lg font-medium transition-colors ${number === currentPage + 1
+                                            className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${number === currentPage + 1
                                                 ? 'bg-gray-900 text-white'
                                                 : typeof number === 'number'
-                                                    ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                                    ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200'
                                                     : 'text-gray-400 cursor-default'
                                                 }`}
                                         >
@@ -279,13 +301,13 @@ const PokemonList: React.FC = () => {
                                 <button
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={!currentHasMore}
-                                    className="text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                                    className="text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed font-medium px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:hover:bg-transparent transition-colors"
                                 >
                                     Next &gt;
                                 </button>
                             </div>
 
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-600 text-center">
                                 Page {currentPage + 1} of {totalPages} ({limit} Pokemon shown of {paginationTotal})
                             </div>
                         </div>
