@@ -63,13 +63,11 @@ pokemon-browser/
 │   │   ├── LoadingMoreIndicator.tsx # "Loading more Pokemon" indicator
 │   │   ├── ImageSkeleton.tsx # Skeleton loader for images
 │   │   ├── LoadMorePokemonGrid.tsx # Grid with "Load More" button
-│   │   ├── LazyPokemonGrid.tsx # Lazy loading grid component
 │   │   ├── PokemonDetailHeader.tsx # Detail page header
 │   │   ├── PokemonDetailImage.tsx # Pokemon image with error handling
 │   │   ├── PokemonDetailInfo.tsx # Height/weight information
 │   │   ├── StatsSection.tsx # Pokemon stats display
 │   │   ├── AbilitiesSection.tsx # Pokemon abilities display
-│   │   ├── SuspenseErrorBoundary.tsx # Combined Suspense and error handling
 │   │   ├── ErrorBoundary.tsx # Error boundary component
 │   │   └── index.ts # Centralized component exports
 │   ├── hooks/              # Custom React hooks
@@ -84,7 +82,8 @@ pokemon-browser/
 │   │   └── constants.ts    # Application constants
 │   ├── pages/              # Page components
 │   │   ├── PokemonList.tsx # Main Pokemon list page
-│   │   └── PokemonDetail.tsx # Pokemon detail page with responsive design
+│   │   ├── PokemonDetail.tsx # Pokemon detail page with responsive design
+│   │   └── NotFound.tsx # 404 error page
 │   ├── types/              # TypeScript type definitions
 │   └── App.tsx             # Main app component
 ├── public/                 # Static assets
@@ -112,7 +111,6 @@ pokemon-browser/
 </PokemonList>
 
 <PokemonDetail>
-  <PokemonDetailHeader />
   <PokemonDetailImage />
   <PokemonDetailInfo />
   <StatsSection />
@@ -196,12 +194,10 @@ export function filterPokemon(
 
 #### **Layout Components**
 - `LoadMorePokemonGrid`: Grid with "Load More" button functionality
-- `LazyPokemonGrid`: Lazy loading grid component
 - `PaginationControls`: Reusable pagination component
 - `ViewModeToggle`: Encapsulated view mode logic with animations
 
 #### **Pokemon Detail Components**
-- `PokemonDetailHeader`: Header section with gradient background
 - `PokemonDetailImage`: Image display with error handling and skeleton
 - `PokemonDetailInfo`: Height/weight information display
 - `StatsSection`: Pokemon stats with progress bars
@@ -209,14 +205,64 @@ export function filterPokemon(
 - `TypeBadge`: Color-coded Pokemon type badges
 
 #### **Suspense Components**
-- `SuspenseErrorBoundary`: Combined Suspense and error handling with retry functionality
 - `ErrorBoundary`: Standalone error boundary component
+- `RouteGuard`: Route validation and 404 redirects
 
 #### **Custom Hooks**
 - `usePokemonListState`: Manages Pokemon list state and logic
 - `usePokemonDetailState`: Manages Pokemon detail state
 - `useTypeColors`: Provides type color utilities
 - `useInfinitePokemon`: Data fetching hooks for infinite scroll
+- `usePokemonCount`: Dynamic Pokemon count fetching for route validation
+
+### **🛡️ Route Protection & Error Handling**
+
+#### **404 Page**
+- **User-friendly 404 page** with modern design
+- **Navigation options**: Go Home and Go Back buttons
+- **Consistent styling** with the rest of the application
+- **Responsive design** for all screen sizes
+
+#### **Route Guards**
+- **Dynamic Pokemon ID validation** using live API count
+- **Automatic redirects** to 404 for invalid routes
+- **Future-proof design** that adapts to new Pokemon releases
+- **Graceful fallback** if API is unavailable
+- **Seamless user experience** with proper error handling
+
+### **🛣️ Routing Structure**
+
+#### **Route Configuration**
+```typescript
+// App.tsx - Main routing setup
+<Routes>
+  <Route path="/" element={<PokemonList />} />
+  <Route path="/pokemon/:id" element={
+    <RouteGuard>
+      <PokemonDetail />
+    </RouteGuard>
+  } />
+  <Route path="/404" element={<NotFound />} />
+  <Route path="*" element={<NotFound />} />
+</Routes>
+```
+
+#### **Route Protection**
+- **Home Route** (`/`): Pokemon list page
+- **Detail Route** (`/pokemon/:id`): Protected by dynamic RouteGuard
+- **404 Route** (`/404`): Explicit 404 page
+- **Catch-all Route** (`*`): Redirects to 404
+
+#### **Dynamic Validation**
+```typescript
+// RouteGuard uses live API count for validation
+const { data: pokemonCount } = usePokemonCount();
+
+// Validates against current Pokemon count (not hardcoded)
+if (pokemonId < 1 || pokemonId > pokemonCount) {
+  navigate('/404', { replace: true });
+}
+```
 
 ### **🔧 Configuration Management**
 
@@ -465,19 +511,8 @@ The app uses Tailwind CSS for styling. Customize the design by modifying:
 - **Image Optimization**: Skeleton loaders and error handling for images
 - **Responsive Design**: Optimized layouts for all screen sizes
 
-### Mobile Optimizations
-- **Compact Spacing**: Ultra-compact design on small screens
-- **Touch-Friendly**: Large touch targets and smooth interactions
-- **Internal Scrolling**: Card content scrolls on mobile only
-- **Progressive Enhancement**: Scales up appropriately on larger screens
 
-### Desktop Optimizations
-- **Natural Height**: Cards fit content without artificial constraints
-- **Generous Spacing**: Appropriate spacing for larger screens
-- **No Scrolling**: Content fits naturally without overflow
-- **Responsive Typography**: Text scales appropriately
-
-## 🎯 Recent Updates
+## 🎯 Core Features
 
 ### **Component Organization**
 - Added section comments for better code organization
@@ -488,6 +523,19 @@ The app uses Tailwind CSS for styling. Customize the design by modifying:
 - Mobile-first approach with ultra-compact spacing
 - Progressive enhancement for larger screens
 - Viewport-optimized layouts
+- Responsive typography and spacing
+
+### **Loading States**
+- Image skeleton loaders for Pokemon sprites
+- Loading more indicators with transparent backgrounds
+- Comprehensive error handling
+- Smooth loading transitions
+
+
+---
+
+**Built with ❤️ using React, TypeScript, and Vite**
+
 - Responsive typography and spacing
 
 ### **Loading States**

@@ -4,11 +4,13 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Suspense, lazy } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
+import RouteGuard from './components/RouteGuard';
 import './App.css';
 
 
 const PokemonList = lazy(() => import('./pages/PokemonList'));
 const PokemonDetail = lazy(() => import('./pages/PokemonDetail'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,7 +48,13 @@ function App() {
               <Suspense fallback={<PageLoadingFallback />}>
                 <Routes>
                   <Route path="/" element={<PokemonList />} />
-                  <Route path="/pokemon/:id" element={<PokemonDetail />} />
+                  <Route path="/pokemon/:id" element={
+                    <RouteGuard>
+                      <PokemonDetail />
+                    </RouteGuard>
+                  } />
+                  <Route path="/404" element={<NotFound />} />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
             </main>
