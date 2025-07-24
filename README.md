@@ -29,7 +29,11 @@ A modern, responsive Pokemon browser built with React, TypeScript, and Vite. Fea
 
 ## 🚀 Live Demo
 
-**Production URL:** https://pokedex-bo4mivjl5-ahmedayman-96s-projects.vercel.app
+**Production URL:** https://pokedex-nine-eta-55.vercel.app/
+
+## 📂 Repository
+
+**GitHub Repository:** https://github.com/AhmedAyman-96/Pokedex
 
 ## 🛠️ Tech Stack
 
@@ -220,8 +224,32 @@ export function filterPokemon(
 ```typescript
 // src/lib/constants.ts
 export const ITEMS_PER_PAGE = 20;
-export const TYPE_COLORS = { /* ... */ };
-export const ERROR_MESSAGES = { /* ... */ };
+export const TYPE_COLORS = {
+  fire: 'bg-red-500',
+  water: 'bg-blue-500',
+  grass: 'bg-green-500',
+  electric: 'bg-yellow-500',
+  ice: 'bg-blue-200',
+  fighting: 'bg-red-700',
+  poison: 'bg-purple-500',
+  ground: 'bg-yellow-600',
+  flying: 'bg-indigo-400',
+  psychic: 'bg-pink-500',
+  bug: 'bg-green-400',
+  rock: 'bg-yellow-800',
+  ghost: 'bg-purple-700',
+  dragon: 'bg-indigo-700',
+  dark: 'bg-gray-800',
+  steel: 'bg-gray-500',
+  fairy: 'bg-pink-300',
+  normal: 'bg-gray-400'
+};
+export const ERROR_MESSAGES = {
+  FETCH_ERROR: 'Failed to fetch Pokémon data',
+  NOT_FOUND: 'Pokémon not found',
+  NETWORK_ERROR: 'Network error occurred',
+  UNKNOWN_ERROR: 'An unexpected error occurred'
+};
 ```
 
 ### **⚡ API Optimization**
@@ -251,7 +279,7 @@ const detailedPokemon = await fetchPokemonDetailsByUrls(pokemonUrls);
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/AhmedAyman-96/Pokedex.git
    cd pokemon-browser
    ```
 
@@ -417,7 +445,7 @@ export const TYPE_COLORS = {
   fire: 'bg-red-500',
   water: 'bg-blue-500',
   grass: 'bg-green-500',
-  // ... add more types
+  // Add more types as needed
 };
 ```
 
@@ -462,23 +490,12 @@ The app uses Tailwind CSS for styling. Customize the design by modifying:
 - Viewport-optimized layouts
 - Responsive typography and spacing
 
-### **Pokemon Detail Page**
-- Comprehensive Pokemon information display
-- Responsive layout with mobile scrolling
-- Natural height fitting on desktop
-- Optimized spacing and typography
-
 ### **Loading States**
 - Image skeleton loaders for Pokemon sprites
 - Loading more indicators with transparent backgrounds
 - Comprehensive error handling
 - Smooth loading transitions
 
-### **View Mode Improvements**
-- "Load More" button instead of infinite scroll
-- Animated view toggle buttons
-- Background color transitions
-- Better user experience
 
 ---
 
