@@ -1,11 +1,13 @@
 import { usePokemonDetailState } from '../hooks/usePokemonDetailState';
-import PokemonDetailImage from '../components/PokemonDetailImage';
-import PokemonDetailInfo from '../components/PokemonDetailInfo';
-import TypeBadge from '../components/TypeBadge';
-import AbilitiesSection from '../components/AbilitiesSection';
-import StatsSection from '../components/StatsSection';
-import ErrorDisplay from '../components/ErrorDisplay';
-import LoadingSpinner from '../components/LoadingSpinner';
+import {
+    PokemonDetailImage,
+    PokemonDetailInfo,
+    TypeBadge,
+    AbilitiesSection,
+    StatsSection,
+    ErrorDisplay,
+    LoadingSpinner
+} from '../components';
 import { LightningBoltIcon, ArrowLeftIcon } from '../components/icons';
 
 /**
@@ -29,7 +31,6 @@ import { LightningBoltIcon, ArrowLeftIcon } from '../components/icons';
 const PokemonDetail: React.FC = () => {
     const { pokemon, loading, error, handleBackClick, handleRetry } = usePokemonDetailState();
 
-    // Loading state
     if (loading) {
         return (
             <div className="fixed inset-0 bg-pink-50 flex items-center justify-center">
@@ -41,7 +42,6 @@ const PokemonDetail: React.FC = () => {
         );
     }
 
-    // Error state
     if (error || !pokemon) {
         return (
             <div className="fixed inset-0 bg-pink-50 flex items-center justify-center">
@@ -67,7 +67,6 @@ const PokemonDetail: React.FC = () => {
     return (
         <div className="fixed inset-0 bg-pink-50 overflow-y-auto">
             <div className="min-h-screen flex flex-col">
-                {/* Back Button */}
                 <div className="p-4 lg:p-6">
                     <button
                         onClick={handleBackClick}
@@ -78,10 +77,8 @@ const PokemonDetail: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Main Content Section */}
                 <div className="flex-1 flex items-start justify-center px-4 lg:px-8 pb-16">
                     <div className="w-full max-w-7xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
-                        {/* Gradient Header - Part of the card */}
                         <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-8 sm:p-10 text-center">
                             <div className="flex items-center justify-center space-x-3 sm:space-x-4">
                                 <LightningBoltIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
@@ -94,28 +91,21 @@ const PokemonDetail: React.FC = () => {
                             </p>
                         </div>
 
-                        {/* Card Content */}
                         <div className="p-8 sm:p-10 lg:p-12">
                             <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-                                {/* Left Column - Image and Basic Info */}
                                 <div className="flex flex-col items-center">
-                                    {/* Pokémon Image */}
                                     <PokemonDetailImage pokemon={pokemon} />
 
-                                    {/* Type Badges */}
                                     <div className="mb-8 sm:mb-10 flex gap-1">
                                         {pokemon.types.map((type) => (
                                             <TypeBadge key={type.slot} typeName={type.type.name} />
                                         ))}
                                     </div>
 
-                                    {/* Basic Information */}
                                     <PokemonDetailInfo pokemon={pokemon} />
                                 </div>
 
-                                {/* Right Column - Stats and Abilities */}
                                 <div className="space-y-8 sm:space-y-10">
-                                    {/* Base Stats Section */}
                                     <div>
                                         <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8">
                                             Base Stats
@@ -123,7 +113,6 @@ const PokemonDetail: React.FC = () => {
                                         <StatsSection stats={pokemon.stats} />
                                     </div>
 
-                                    {/* Abilities Section */}
                                     <div>
                                         <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8">
                                             Abilities
@@ -131,7 +120,6 @@ const PokemonDetail: React.FC = () => {
                                         <AbilitiesSection abilities={pokemon.abilities} />
                                     </div>
 
-                                    {/* Base Experience Section */}
                                     <div>
                                         <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
                                             Base Experience

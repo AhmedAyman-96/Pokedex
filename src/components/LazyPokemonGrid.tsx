@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import type { Pokemon } from '../types/pokemon';
 import ImageSkeleton from './ImageSkeleton';
 
-// Lazy load the PokemonCard component
+
 const PokemonCard = lazy(() => import('./PokemonCard'));
 
 interface LazyPokemonGridProps {

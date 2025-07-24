@@ -15,14 +15,12 @@ const PokemonDetailImage: React.FC<PokemonDetailImageProps> = ({ pokemon }) => {
     return (
         <div className="flex flex-col items-center">
             <div className="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center p-8 sm:p-10 border border-gray-200 dark:border-gray-700 mb-8 sm:mb-10 relative">
-                {/* Skeleton loader */}
                 {imageLoading && (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <ImageSkeleton size="xl" shape="circle" />
                     </div>
                 )}
 
-                {/* Pokemon image */}
                 <img
                     src={imageUrl}
                     alt={pokemon.name}
@@ -37,7 +35,6 @@ const PokemonDetailImage: React.FC<PokemonDetailImageProps> = ({ pokemon }) => {
                     }}
                 />
 
-                {/* Error fallback */}
                 {imageError && (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center">

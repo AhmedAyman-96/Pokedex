@@ -6,7 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 import './App.css';
 
-// Lazy load pages for code splitting
+
 const PokemonList = lazy(() => import('./pages/PokemonList'));
 const PokemonDetail = lazy(() => import('./pages/PokemonDetail'));
 

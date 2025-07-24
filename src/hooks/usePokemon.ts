@@ -29,7 +29,6 @@ export const usePokemonList = (limit: number = 20, offset: number = 0) => {
     queryFn: () => fetchPokemonList(limit, offset),
   });
 
-  // Extract Pokemon URLs from the list response
   const pokemonUrls = pokemonListData?.results.map(pokemon => pokemon.url) || [];
 
   const {

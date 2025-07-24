@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePokemonList } from './usePokemon';
 import { useInfinitePokemon } from './useInfinitePokemon';
@@ -25,7 +25,6 @@ export const usePokemonListState = () => {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const limit = ITEMS_PER_PAGE;
   const offset = currentPage * limit;
@@ -138,7 +137,6 @@ export const usePokemonListState = () => {
     searchTerm,
     selectedTypes,
     showFilters,
-    scrollContainerRef,
     
     // Data
     filteredPokemonList,

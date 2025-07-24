@@ -29,7 +29,7 @@ interface StatsSectionProps {
  * @returns {JSX.Element} Rendered stats section component
  */
 const StatsSection: React.FC<StatsSectionProps> = ({ stats }) => {
-    const maxStat = 255; // Maximum possible stat value in Pokemon
+    const maxStat = 255;
 
     return (
         <div className="space-y-4 sm:space-y-5">

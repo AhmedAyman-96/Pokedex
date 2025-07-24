@@ -33,7 +33,6 @@ export const useInfinitePokemon = () => {
       const offset = pageParam * ITEMS_PER_PAGE;
       const pokemonList = await fetchPokemonList(ITEMS_PER_PAGE, offset);
       
-      // Extract Pokemon URLs from the list response
       const pokemonUrls = pokemonList.results.map(pokemon => pokemon.url);
       const detailedPokemon = await fetchPokemonDetailsByUrls(pokemonUrls);
       

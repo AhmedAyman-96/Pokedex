@@ -1,11 +1,13 @@
 
-import PokemonCard from '../components/PokemonCard';
-import VirtualizedPokemonGrid from '../components/VirtualizedPokemonGrid';
-import PokemonCardSkeleton from '../components/PokemonCardSkeleton';
-import ViewModeToggle from '../components/ViewModeToggle';
-import PaginationControls from '../components/PaginationControls';
-import ErrorDisplay from '../components/ErrorDisplay';
-import LoadingSpinner from '../components/LoadingSpinner';
+import {
+    PokemonCard,
+    LoadMorePokemonGrid,
+    PokemonCardSkeleton,
+    ViewModeToggle,
+    PaginationControls,
+    ErrorDisplay,
+    LoadingSpinner
+} from '../components';
 import { LightningBoltIcon } from '../components/icons';
 import { usePokemonListState } from '../hooks/usePokemonListState';
 
@@ -29,7 +31,6 @@ const PokemonList: React.FC = () => {
         // State
         viewType,
         currentPage,
-        scrollContainerRef,
 
         // Data
         filteredPokemonList,
@@ -48,7 +49,6 @@ const PokemonList: React.FC = () => {
         loadMore,
     } = usePokemonListState();
 
-    // Show error state if there's an error
     if (currentError) {
         return (
             <div className={`fixed inset-0 flex items-center justify-center transition-colors duration-500 ease-in-out ${viewType === 'loadMore' ? 'bg-green-50' : 'bg-sky-100'
@@ -64,12 +64,10 @@ const PokemonList: React.FC = () => {
 
     return (
         <div
-            ref={scrollContainerRef}
             className={`fixed inset-0 overflow-y-auto transition-colors duration-500 ease-in-out ${viewType === 'loadMore' ? 'bg-green-50' : 'bg-sky-100'
                 }`}
         >
             <div className="min-h-full">
-                {/* Header Section */}
                 <div className="py-8 sm:py-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center">
@@ -86,16 +84,13 @@ const PokemonList: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Main Content Section */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
                     <div className="space-y-6">
-                        {/* View Mode Toggle */}
                         <ViewModeToggle
                             viewType={viewType}
                             onViewTypeChange={handleViewTypeChange}
                         />
 
-                        {/* Loading State - Initial Load */}
                         {currentLoading && filteredPokemonList.length === 0 && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                                 {Array.from({ length: 10 }).map((_, index) => (
@@ -104,17 +99,15 @@ const PokemonList: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Pokémon Grid */}
                         {filteredPokemonList.length > 0 && (
                             <>
                                 {viewType === 'loadMore' ? (
-                                    <VirtualizedPokemonGrid
+                                    <LoadMorePokemonGrid
                                         pokemonList={filteredPokemonList}
                                         hasNextPage={currentHasMore}
                                         isNextPageLoading={currentNextPageLoading}
                                         loadNextPage={loadMore}
                                         onPokemonClick={handlePokemonClick}
-                                        scrollContainerRef={scrollContainerRef}
                                     />
                                 ) : (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -130,7 +123,6 @@ const PokemonList: React.FC = () => {
                             </>
                         )}
 
-                        {/* No Results State */}
                         {!currentLoading && filteredPokemonList.length === 0 && (
                             <div className="text-center py-12">
                                 <div className="text-gray-500 text-lg mb-4">
@@ -139,7 +131,6 @@ const PokemonList: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Pagination Controls */}
                         {viewType === 'pagination' && !currentLoading && filteredPokemonList.length > 0 && (
                             <div className="flex flex-col items-center space-y-4">
                                 <PaginationControls
@@ -150,14 +141,12 @@ const PokemonList: React.FC = () => {
                                     hasPreviousPage={currentPage > 0}
                                 />
 
-                                {/* Page Information */}
                                 <div className="text-sm text-gray-600 text-center">
                                     Page {currentPage + 1} of {totalPages} ({limit} Pokemon shown of {filteredPokemonList.length})
                                 </div>
                             </div>
                         )}
 
-                        {/* Loading State - Page Change */}
                         {viewType === 'pagination' && currentLoading && filteredPokemonList.length > 0 && (
                             <LoadingSpinner
                                 message="Loading Pokémon..."

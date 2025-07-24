@@ -14,19 +14,19 @@ export const ITEMS_PER_PAGE = 20;
  * Maximum number of Pokémon to display
  * Limited to the original 151 Pokémon for better performance
  */
-export const MAX_POKEMON_COUNT = 151; // Original 151 Pokemon
+export const MAX_POKEMON_COUNT = 151;
 
 /**
  * UI Configuration
  * Distance in pixels from the bottom of the viewport to trigger infinite scroll
  */
-export const SCROLL_THRESHOLD = 100; // pixels from bottom to trigger infinite scroll
+export const SCROLL_THRESHOLD = 100;
 
 /**
  * Delay in milliseconds for search input debouncing
  * Prevents excessive API calls while user is typing
  */
-export const DEBOUNCE_DELAY = 300; // milliseconds for search debouncing
+export const DEBOUNCE_DELAY = 300;
 
 /**
  * Pokemon Type Colors

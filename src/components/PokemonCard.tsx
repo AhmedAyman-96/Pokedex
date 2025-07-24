@@ -33,12 +33,10 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onClick }) => {
         >
             <div className="p-4">
                 <div className="flex justify-center mb-4 relative">
-                    {/* Skeleton loader */}
                     {imageLoading && (
                         <ImageSkeleton size="md" shape="square" />
                     )}
 
-                    {/* Pokemon image */}
                     <img
                         src={imageUrl}
                         alt={pokemon.name}
@@ -53,7 +51,6 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onClick }) => {
                         }}
                     />
 
-                    {/* Error fallback */}
                     {imageError && (
                         <div className="w-24 h-24 bg-gray-100 dark:bg-gray-600 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-500">
                             <span className="text-xs text-gray-500 dark:text-gray-400 text-center px-2">
