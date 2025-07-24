@@ -31,7 +31,7 @@ const PokemonDetailImage: React.FC<PokemonDetailImageProps> = ({ pokemon }) => {
                         setImageLoading(false);
                         setImageError(true);
                         const target = e.target as HTMLImageElement;
-                        target.src = 'https://via.placeholder.com/320x320?text=Pokemon';
+                        target.src = 'https://placehold.co/320x320?text=Pokemon';
                     }}
                 />
 

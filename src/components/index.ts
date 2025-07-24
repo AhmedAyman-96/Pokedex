@@ -21,6 +21,5 @@ export { default as StatsSection } from './StatsSection';
 export { default as AbilitiesSection } from './AbilitiesSection';
 
 // Suspense Components
-export { default as SuspenseWrapper } from './SuspenseWrapper';
 export { default as SuspenseErrorBoundary } from './SuspenseErrorBoundary';
 export { default as ErrorBoundary } from './ErrorBoundary'; 

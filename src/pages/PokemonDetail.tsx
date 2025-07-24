@@ -65,38 +65,38 @@ const PokemonDetail: React.FC = () => {
     }
 
     return (
-        <div className="fixed inset-0 bg-pink-50 overflow-y-auto">
-            <div className="min-h-screen flex flex-col">
-                <div className="p-4 lg:p-6">
+        <div className="fixed inset-0 bg-pink-50 flex flex-col">
+            <div className="h-full flex flex-col">
+                <div className="p-3 sm:p-4 lg:p-6 flex-shrink-0">
                     <button
                         onClick={handleBackClick}
-                        className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                        className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors flex items-center text-sm sm:text-base"
                     >
-                        <ArrowLeftIcon className="w-4 h-4 mr-2" />
+                        <ArrowLeftIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                         Back to List
                     </button>
                 </div>
 
-                <div className="flex-1 flex items-start justify-center px-4 lg:px-8 pb-16">
-                    <div className="w-full max-w-7xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-8 sm:p-10 text-center">
-                            <div className="flex items-center justify-center space-x-3 sm:space-x-4">
-                                <LightningBoltIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                                <h1 className="text-3xl sm:text-4xl font-bold text-white capitalize">
+                <div className="flex-1 flex items-center justify-center px-3 sm:px-4 lg:px-8 pb-3 sm:pb-4 lg:pb-6">
+                    <div className="w-full max-w-3xl sm:max-w-4xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl max-h-[calc(100vh-6rem)] sm:max-h-fit bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-2 sm:p-3 md:p-4 lg:p-6 xl:p-8 text-center flex-shrink-0">
+                            <div className="flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4">
+                                <LightningBoltIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 xl:w-10 xl:h-10 text-white" />
+                                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white capitalize">
                                     {pokemon.name}
                                 </h1>
                             </div>
-                            <p className="text-white text-lg sm:text-xl mt-2">
+                            <p className="text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl mt-1">
                                 #{pokemon.id.toString().padStart(3, '0')}
                             </p>
                         </div>
 
-                        <div className="p-8 sm:p-10 lg:p-12">
-                            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-                                <div className="flex flex-col items-center">
+                        <div className="flex-1 overflow-y-auto sm:overflow-visible p-2 sm:p-3 md:p-4 lg:p-6 xl:p-8">
+                            <div className="grid lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10">
+                                <div className="flex flex-col items-center space-y-1 sm:space-y-2 md:space-y-3 lg:space-y-4 xl:space-y-6">
                                     <PokemonDetailImage pokemon={pokemon} />
 
-                                    <div className="mb-8 sm:mb-10 flex gap-1">
+                                    <div className="flex gap-1">
                                         {pokemon.types.map((type) => (
                                             <TypeBadge key={type.slot} typeName={type.type.name} />
                                         ))}
@@ -105,26 +105,26 @@ const PokemonDetail: React.FC = () => {
                                     <PokemonDetailInfo pokemon={pokemon} />
                                 </div>
 
-                                <div className="space-y-8 sm:space-y-10">
+                                <div className="space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-6 xl:space-y-8">
                                     <div>
-                                        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8">
+                                        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 md:mb-3 lg:mb-4 xl:mb-6">
                                             Base Stats
                                         </h3>
                                         <StatsSection stats={pokemon.stats} />
                                     </div>
 
                                     <div>
-                                        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8">
+                                        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 md:mb-3 lg:mb-4 xl:mb-6">
                                             Abilities
                                         </h3>
                                         <AbilitiesSection abilities={pokemon.abilities} />
                                     </div>
 
                                     <div>
-                                        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                                        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 md:mb-3 lg:mb-4">
                                             Base Experience
                                         </h3>
-                                        <p className="text-3xl sm:text-4xl font-bold text-purple-600 dark:text-purple-400">
+                                        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-purple-600 dark:text-purple-400">
                                             {pokemon.base_experience} XP
                                         </p>
                                     </div>

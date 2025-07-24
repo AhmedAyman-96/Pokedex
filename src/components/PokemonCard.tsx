@@ -47,7 +47,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onClick }) => {
                             setImageLoading(false);
                             setImageError(true);
                             const target = e.target as HTMLImageElement;
-                            target.src = 'https://via.placeholder.com/96x96?text=Pokemon';
+                            target.src = 'https://placehold.co/96x96?text=Pokemon';
                         }}
                     />
 

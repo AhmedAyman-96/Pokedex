@@ -97,7 +97,7 @@ export function formatPokemonId(id: number): string {
 export function getPokemonImageUrl(pokemon: Pokemon): string {
   return pokemon.sprites.other['official-artwork'].front_default ||
     pokemon.sprites.front_default ||
-    'https://via.placeholder.com/96x96?text=Pokemon';
+    'https://placehold.co/96x96?text=Pokemon';
 }
 
 /**
